@@ -1,0 +1,66 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
+    <title>Location</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body style="margin:32px">
+
+<div style="display:flex;">
+<h2>Location: </h2> <h2 th:text="${location.name}"></h2>
+</div>
+
+<th:block th:each="user : ${users}" >
+    <div  class="d-flex mb-3" style="width:300px;align-items:center" th:id="${user.getUserid()}">
+        <p class="me-auto" style="font-size:20px;" th:text="${user.getFirstName()}+' '+|${user.getLastName()}|"/>
+        <button th:data-param1="${user.getEmailId()}" th:onclick="|addFriend('${location.id}',this.getAttribute('data-param1'),'${user.getUserid()}')|" type="button" class="btn btn-outline-success">Add</button>
+        <button disabled type="button" class="btn btn-danger">Remove</button>
+    </div>
+</th:block>
+
+<div style="display:flex;">
+    <h2>Friends: </h2>
+</div>
+
+<th:block th:each="friend : ${friends}" >
+    <div  class="d-flex mb-3" style="width:300px;align-items:center" th:id="${friend.getUserid()}">
+        <p class="me-auto" style="font-size:20px;" th:text="${friend.getFirstName()}+' '+|${friend.getLastName()}|"/>
+
+        <button disabled type="button" class="btn btn-success">Add</button>
+        <button th:data-param1="${friend.getEmailId()}" th:onclick="|deleteFriend('${location.id}',this.getAttribute('data-param1'),'${friend.getUserid()}')|" type="button" class="btn btn-outline-danger">Remove</button>
+    </div>
+</th:block>
+
+</body>
+
+<script>
+ function addFriend(id,friend_email,div_id) {
+    let token = document.querySelector("meta[name='_csrf']").content;
+    $.ajax({
+        type:"PUT",
+        url:"/main/"+id+"/add/"+friend_email,
+        headers: {'X-CSRF-TOKEN': token}
+        ,success: function(responce) {
+             $("#"+div_id).remove();
+        }
+    });
+}
+ function deleteFriend(id,friend_email,div_id) {
+    let token = document.querySelector("meta[name='_csrf']").content;
+    $.ajax({
+        type:"DELETE",
+        url:"/main/"+id+"/delete/"+friend_email,
+        headers: {'X-CSRF-TOKEN': token}
+        ,success: function(responce) {
+             $("#"+div_id).remove();
+        }
+    });
+}
+</script>
+
+</html>
